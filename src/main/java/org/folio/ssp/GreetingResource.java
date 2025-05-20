@@ -1,4 +1,4 @@
-package org.folio;
+package org.folio.ssp;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
