@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 @UnitTest
 @QuarkusTest
-class EntryResourceTest {
+class SecureStoreEntryResourceTest {
 
   @Test
   void getEntry_positive() {

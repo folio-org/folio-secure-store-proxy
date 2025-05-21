@@ -3,34 +3,35 @@ package org.folio.ssp.resource;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import lombok.AllArgsConstructor;
 import org.folio.ssp.model.SecureStoreEntry;
+import org.folio.ssp.service.SecureStoreEntryService;
 import org.jboss.resteasy.reactive.RestPath;
 
 @Path("/entries")
-public class EntryResource {
+@AllArgsConstructor
+public class SecureStoreEntryResource {
+
+  @Inject
+  SecureStoreEntryService entryService;
 
   @GET
   @Path("{key}")
   @Produces(APPLICATION_JSON)
   public Uni<SecureStoreEntry> getEntry(String key) {
-    return Uni.createFrom().item(() -> {
-      // Simulate a database call
-      return SecureStoreEntry.of(key, "value");
-    });
+    return entryService.get(key).map(s -> SecureStoreEntry.of(key, s));
   }
 
   @PUT
   @Path("{key}")
   @Consumes(APPLICATION_JSON)
   public Uni<Void> setEntry(@RestPath String key, SecureStoreEntry entry) {
-    return Uni.createFrom().item(() -> {
-      // Simulate a database call
-      return null;
-    });
+    return entryService.put(key, entry.getValue());
   }
 }

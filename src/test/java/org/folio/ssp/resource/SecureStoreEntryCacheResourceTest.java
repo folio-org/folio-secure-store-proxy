@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 @UnitTest
 @QuarkusTest
-class EntryCacheResourceTest {
+class SecureStoreEntryCacheResourceTest {
 
   @Test
   void getAll_positive() {
