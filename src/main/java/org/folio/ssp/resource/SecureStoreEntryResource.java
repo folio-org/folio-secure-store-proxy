@@ -4,7 +4,10 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -14,7 +17,7 @@ import org.folio.ssp.model.SecureStoreEntry;
 import org.folio.ssp.service.SecureStoreEntryService;
 import org.jboss.resteasy.reactive.RestPath;
 
-@Path("/entries")
+@Path("/entries/{key}")
 @AllArgsConstructor
 public class SecureStoreEntryResource {
 
@@ -22,16 +25,19 @@ public class SecureStoreEntryResource {
   SecureStoreEntryService entryService;
 
   @GET
-  @Path("{key}")
   @Produces(APPLICATION_JSON)
-  public Uni<SecureStoreEntry> getEntry(String key) {
+  public Uni<SecureStoreEntry> getEntry(@NotBlank String key) {
     return entryService.get(key).map(s -> SecureStoreEntry.of(key, s));
   }
 
   @PUT
-  @Path("{key}")
   @Consumes(APPLICATION_JSON)
-  public Uni<Void> setEntry(@RestPath String key, SecureStoreEntry entry) {
+  public Uni<Void> setEntry(@RestPath @NotBlank String key, @Valid SecureStoreEntry entry) {
     return entryService.put(key, entry.getValue());
+  }
+
+  @DELETE
+  public Uni<Void> deleteEntry(@NotBlank String key) {
+    return entryService.delete(key);
   }
 }

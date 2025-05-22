@@ -40,6 +40,13 @@ public class SecureStoreEntryService {
       });
   }
 
+  public Uni<Void> delete(String key) {
+    return executeBlocking(deleteInternal(key))
+      .chain(() -> entryCache.invalidate(key)
+        .invoke(() -> log.debug("Cache entry invalidated by \"delete\" method: key = {}", key))
+      );
+  }
+
   private Supplier<Void> putInternal(String key, String value) {
     return () -> {
       log.debug("Setting entry in secure store: key = {}, value = {}", key, value);
@@ -57,6 +64,17 @@ public class SecureStoreEntryService {
       log.debug("Entry retrieved: key = {}, value = {}", key, value);
 
       return value;
+    };
+  }
+
+  private Supplier<Object> deleteInternal(String key) {
+    return () -> {
+      log.debug("Deleting entry from secure store: key = {}", key);
+      // TODO: replace with secureStore.delete(key) when implemented
+      secureStore.set(key, null);
+      log.debug("Entry deleted: key = {}", key);
+
+      return null;
     };
   }
 

@@ -4,6 +4,7 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -25,7 +26,7 @@ public class SecureStoreEntryCacheResource {
 
   @DELETE
   @Path("{key}")
-  public Uni<Void> invalidateEntry(String key) {
+  public Uni<Void> invalidateEntry(@NotBlank String key) {
     return cacheService.invalidate(key);
   }
 
