@@ -7,6 +7,7 @@ import static org.folio.tools.store.properties.VaultConfigProperties.DEFAULT_VAU
 import io.quarkus.arc.lookup.LookupIfProperty;
 import io.smallrye.config.ConfigMapping;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +23,13 @@ import org.folio.tools.store.properties.VaultConfigProperties;
 public class SecureStoreConfiguration {
 
   private static final String SECURE_STORE_TYPE_PROP = "secret-store.type";
+
+  @Produces
+  @ApplicationScoped
+  @ConfiguredSecureStore
+  public SecureStore getConfiguredStore(Instance<SecureStore> secureStoreInstance) {
+    return secureStoreInstance.get();
+  }
 
   public static class AwsConfig {
 

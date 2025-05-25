@@ -1,6 +1,7 @@
 package org.folio.ssp.service;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
 
 import io.quarkus.cache.Cache;
@@ -10,10 +11,11 @@ import io.quarkus.cache.CaffeineCache;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import java.util.function.Supplier;
 import lombok.extern.log4j.Log4j2;
+import org.folio.ssp.configuration.ConfiguredSecureStore;
 import org.folio.tools.store.SecureStore;
+import org.folio.tools.store.exception.NotFoundException;
 
 @Log4j2
 @ApplicationScoped
@@ -22,8 +24,9 @@ public class SecureStoreEntryService {
   private final SecureStore secureStore;
   private final Cache entryCache;
 
-  public SecureStoreEntryService(Instance<SecureStore> secureStore, @CacheName(ENTRY_CACHE) Cache entryCache) {
-    this.secureStore = secureStore.get();
+  public SecureStoreEntryService(@ConfiguredSecureStore SecureStore secureStore,
+    @CacheName(ENTRY_CACHE) Cache entryCache) {
+    this.secureStore = secureStore;
     this.entryCache = entryCache;
   }
 
@@ -61,9 +64,14 @@ public class SecureStoreEntryService {
     return () -> {
       log.debug("Getting entry from secure store: key = {}", key);
       var value = secureStore.get(key);
-      log.debug("Entry retrieved: key = {}, value = {}", key, value);
 
-      return value;
+      if (isEmpty(value)) {
+        log.debug("Entry not found: key = {}", key);
+        throw new NotFoundException("Entry not found: key = " + key);
+      } else {
+        log.debug("Entry retrieved: key = {}, value = {}", key, value);
+        return value;
+      }
     };
   }
 

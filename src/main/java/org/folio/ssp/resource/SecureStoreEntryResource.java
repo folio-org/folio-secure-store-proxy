@@ -17,7 +17,7 @@ import org.folio.ssp.model.SecureStoreEntry;
 import org.folio.ssp.service.SecureStoreEntryService;
 import org.jboss.resteasy.reactive.RestPath;
 
-@Path("/entries/{key}")
+@Path("/entries")
 @AllArgsConstructor
 public class SecureStoreEntryResource {
 
@@ -25,18 +25,21 @@ public class SecureStoreEntryResource {
   SecureStoreEntryService entryService;
 
   @GET
+  @Path("{key}")
   @Produces(APPLICATION_JSON)
   public Uni<SecureStoreEntry> getEntry(@NotBlank String key) {
     return entryService.get(key).map(s -> SecureStoreEntry.of(key, s));
   }
 
   @PUT
+  @Path("{key}")
   @Consumes(APPLICATION_JSON)
   public Uni<Void> setEntry(@RestPath @NotBlank String key, @Valid SecureStoreEntry entry) {
     return entryService.put(key, entry.getValue());
   }
 
   @DELETE
+  @Path("{key}")
   public Uni<Void> deleteEntry(@NotBlank String key) {
     return entryService.delete(key);
   }
