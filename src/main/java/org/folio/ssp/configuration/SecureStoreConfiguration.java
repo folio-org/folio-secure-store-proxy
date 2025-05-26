@@ -26,7 +26,7 @@ public class SecureStoreConfiguration {
 
   @Produces
   @ApplicationScoped
-  @ConfiguredSecureStore
+  @Configured
   public SecureStore getConfiguredStore(Instance<SecureStore> secureStoreInstance) {
     return secureStoreInstance.get();
   }

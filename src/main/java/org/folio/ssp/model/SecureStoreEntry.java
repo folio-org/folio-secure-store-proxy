@@ -10,8 +10,8 @@ import lombok.Data;
 @RegisterForReflection
 public class SecureStoreEntry {
 
-  @NotBlank(message = "Key may not be blank")
+  @NotBlank(message = "Key cannot be blank")
   private String key;
-  @NotBlank(message = "Value may not be blank")
+  @NotBlank(message = "Value cannot be blank")
   private String value;
 }

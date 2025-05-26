@@ -9,5 +9,5 @@ import java.lang.annotation.Retention;
 @Qualifier
 @Documented
 @Retention(RUNTIME)
-public @interface ConfiguredSecureStore {
+public @interface Configured {
 }

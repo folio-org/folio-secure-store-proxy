@@ -10,17 +10,17 @@ public final class InMemorySecureStore implements SecureStore {
 
   private final Map<String, String> data;
 
+  private InMemorySecureStore(Map<String, String> data) {
+    requireNonNull(data);
+    this.data = data;
+  }
+
   public static InMemorySecureStore empty() {
     return new InMemorySecureStore(new HashMap<>());
   }
 
   public static InMemorySecureStore from(Map<String, String> data) {
     return new InMemorySecureStore(new HashMap<>(data));
-  }
-
-  private InMemorySecureStore(Map<String, String> data) {
-    requireNonNull(data);
-    this.data = data;
   }
 
   public Map<String, String> getData() {
@@ -33,12 +33,12 @@ public final class InMemorySecureStore implements SecureStore {
   }
 
   @Override
-  public void set(String key, String value) {
-    data.put(key, value);
+  public String get(String clientId, String tenant, String username) {
+    throw new UnsupportedOperationException("Deprecated method is not supported.");
   }
 
   @Override
-  public String get(String clientId, String tenant, String username) {
-    throw new UnsupportedOperationException("Deprecated method is not supported.");
+  public void set(String key, String value) {
+    data.put(key, value);
   }
 }

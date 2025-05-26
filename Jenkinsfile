@@ -7,9 +7,9 @@ buildMvn {
   mvnDeploy = true
   buildNode = 'jenkins-agent-java21'
 
-  doDocker = {
-    buildJavaDocker {
-      publishMaster = true
-    }
-  }
+//  doDocker = {
+//    buildJavaDocker {
+//      publishMaster = true
+//    }
+//  }
 }

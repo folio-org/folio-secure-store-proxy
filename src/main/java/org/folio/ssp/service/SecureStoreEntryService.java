@@ -1,6 +1,7 @@
 package org.folio.ssp.service;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
 
@@ -13,7 +14,7 @@ import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.function.Supplier;
 import lombok.extern.log4j.Log4j2;
-import org.folio.ssp.configuration.ConfiguredSecureStore;
+import org.folio.ssp.configuration.Configured;
 import org.folio.tools.store.SecureStore;
 import org.folio.tools.store.exception.NotFoundException;
 
@@ -24,18 +25,21 @@ public class SecureStoreEntryService {
   private final SecureStore secureStore;
   private final Cache entryCache;
 
-  public SecureStoreEntryService(@ConfiguredSecureStore SecureStore secureStore,
-    @CacheName(ENTRY_CACHE) Cache entryCache) {
+  public SecureStoreEntryService(@Configured SecureStore secureStore, @CacheName(ENTRY_CACHE) Cache entryCache) {
     this.secureStore = secureStore;
     this.entryCache = entryCache;
   }
 
   @CacheResult(cacheName = ENTRY_CACHE)
   public Uni<String> get(String key) {
+    validateKey(key);
     return executeBlocking(getInternal(key));
   }
 
   public Uni<Void> put(String key, String value) {
+    validateKey(key);
+    validateValue(value);
+
     return executeBlocking(putInternal(key, value))
       .invoke(() -> {
         entryCache.as(CaffeineCache.class).put(key, completedFuture(value));
@@ -44,6 +48,8 @@ public class SecureStoreEntryService {
   }
 
   public Uni<Void> delete(String key) {
+    validateKey(key);
+
     return executeBlocking(deleteInternal(key))
       .chain(() -> entryCache.invalidate(key)
         .invoke(() -> log.debug("Cache entry invalidated by \"delete\" method: key = {}", key))
@@ -84,6 +90,18 @@ public class SecureStoreEntryService {
 
       return null;
     };
+  }
+
+  private static void validateKey(String key) {
+    if (isBlank(key)) {
+      throw new IllegalArgumentException("Key cannot be blank");
+    }
+  }
+
+  private static void validateValue(String value) {
+    if (isBlank(value)) {
+      throw new IllegalArgumentException("Value cannot be blank");
+    }
   }
 
   private static <T> Uni<T> executeBlocking(Supplier<T> supplier) {
