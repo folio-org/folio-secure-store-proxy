@@ -3,6 +3,10 @@ package org.folio.ssp.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
+import static org.folio.ssp.support.TestConstants.KEY1;
+import static org.folio.ssp.support.TestConstants.KEY2;
+import static org.folio.ssp.support.TestConstants.VALUE1;
+import static org.folio.ssp.support.TestConstants.VALUE2;
 import static org.folio.ssp.support.TestUtils.await;
 import static org.folio.ssp.support.TestUtils.getCached;
 import static org.mockito.Mockito.times;
@@ -31,11 +35,6 @@ import org.junit.jupiter.params.provider.NullSource;
 @UnitTest
 @QuarkusTest
 class SecureStoreEntryServiceTest {
-
-  private static final String KEY1 = "key1";
-  private static final String VALUE1 = "value1";
-  private static final String KEY2 = "KEY2";
-  private static final String VALUE2 = "VALUE2";
 
   @InjectMock @Configured SecureStore secureStore;
   @Inject @CacheName(ENTRY_CACHE) Cache entryCache;
@@ -210,7 +209,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  void delete_negative_blankKey(String key) throws Exception {
+  void delete_negative_blankKey(String key) {
     assertThatThrownBy(() -> await(service.delete(key)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Key cannot be blank");
