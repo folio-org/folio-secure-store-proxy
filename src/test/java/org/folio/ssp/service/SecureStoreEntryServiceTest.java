@@ -3,12 +3,13 @@ package org.folio.ssp.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
+import static org.folio.ssp.support.AssertionUtils.assertCached;
+import static org.folio.ssp.support.AssertionUtils.assertNotCached;
 import static org.folio.ssp.support.TestConstants.KEY1;
 import static org.folio.ssp.support.TestConstants.KEY2;
 import static org.folio.ssp.support.TestConstants.VALUE1;
 import static org.folio.ssp.support.TestConstants.VALUE2;
 import static org.folio.ssp.support.TestUtils.await;
-import static org.folio.ssp.support.TestUtils.getCached;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -20,7 +21,6 @@ import io.quarkus.cache.CacheName;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import java.util.concurrent.ExecutionException;
 import org.folio.ssp.configuration.Configured;
 import org.folio.support.types.UnitTest;
 import org.folio.tools.store.SecureStore;
@@ -53,7 +53,7 @@ class SecureStoreEntryServiceTest {
     var result = await(service.get(KEY1));
 
     assertThat(result).isEqualTo(VALUE1);
-    assertCached(KEY1, VALUE1);
+    assertCached(entryCache, KEY1, VALUE1);
 
     verify(secureStore, times(1)).get(KEY1);
   }
@@ -66,7 +66,7 @@ class SecureStoreEntryServiceTest {
       var result = await(service.get(KEY1));
 
       assertThat(result).isEqualTo(VALUE1);
-      assertCached(KEY1, VALUE1);
+      assertCached(entryCache, KEY1, VALUE1);
     }
 
     verify(secureStore, times(1)).get(KEY1);
@@ -83,8 +83,8 @@ class SecureStoreEntryServiceTest {
     assertThat(result1).isEqualTo(VALUE1);
     assertThat(result2).isEqualTo(VALUE2);
 
-    assertCached(KEY1, VALUE1);
-    assertCached(KEY2, VALUE2);
+    assertCached(entryCache, KEY1, VALUE1);
+    assertCached(entryCache, KEY2, VALUE2);
 
     verify(secureStore, times(1)).get(KEY1);
     verify(secureStore, times(1)).get(KEY2);
@@ -97,7 +97,7 @@ class SecureStoreEntryServiceTest {
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Null keys are not supported by the Quarkus application data cache");
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(0)).get(key);
   }
 
@@ -109,7 +109,7 @@ class SecureStoreEntryServiceTest {
       .hasRootCauseInstanceOf(IllegalArgumentException.class)
       .hasRootCauseMessage("Key cannot be blank");
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(0)).get(key);
   }
 
@@ -121,7 +121,7 @@ class SecureStoreEntryServiceTest {
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Entry not found: key = " + KEY1);
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(1)).get(KEY1);
   }
 
@@ -133,7 +133,7 @@ class SecureStoreEntryServiceTest {
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Entry not found: key = " + KEY1);
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(1)).get(KEY1);
   }
 
@@ -141,7 +141,7 @@ class SecureStoreEntryServiceTest {
   void put_positive() throws Exception {
     await(service.put(KEY1, VALUE1));
 
-    assertCached(KEY1, VALUE1);
+    assertCached(entryCache, KEY1, VALUE1);
 
     verify(secureStore, times(1)).set(KEY1, VALUE1);
   }
@@ -153,10 +153,10 @@ class SecureStoreEntryServiceTest {
     var result = await(service.get(KEY1));
 
     assertThat(result).isEqualTo(VALUE1);
-    assertCached(KEY1, VALUE1);
+    assertCached(entryCache, KEY1, VALUE1);
 
     await(service.put(KEY1, VALUE2));
-    assertCached(KEY1, VALUE2);
+    assertCached(entryCache, KEY1, VALUE2);
 
     verify(secureStore, times(1)).get(KEY1);
     verify(secureStore, times(1)).set(KEY1, VALUE2);
@@ -169,7 +169,7 @@ class SecureStoreEntryServiceTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Key cannot be blank");
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(0)).set(key, VALUE1);
   }
 
@@ -180,7 +180,7 @@ class SecureStoreEntryServiceTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value cannot be blank");
 
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
     verify(secureStore, times(0)).set(KEY1, value);
   }
 
@@ -190,10 +190,10 @@ class SecureStoreEntryServiceTest {
 
     var result = await(service.get(KEY1));
     assertThat(result).isEqualTo(VALUE1);
-    assertCached(KEY1, VALUE1);
+    assertCached(entryCache, KEY1, VALUE1);
 
     await(service.delete(KEY1));
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
 
     verify(secureStore, times(1)).get(KEY1);
     verify(secureStore, times(1)).set(KEY1, null);
@@ -202,7 +202,7 @@ class SecureStoreEntryServiceTest {
   @Test
   void delete_positive_keyNotPresent() throws Exception {
     await(service.delete(KEY1));
-    assertNotCached(KEY1);
+    assertNotCached(entryCache, KEY1);
 
     verify(secureStore, times(1)).set(KEY1, null);
   }
@@ -215,17 +215,5 @@ class SecureStoreEntryServiceTest {
       .hasMessage("Key cannot be blank");
 
     verify(secureStore, times(0)).set(key, null);
-  }
-
-  private void assertCached(String key, String expected) throws InterruptedException, ExecutionException {
-    var cached = getCached(entryCache, key);
-    assertThat(cached)
-      .isPresent()
-      .hasValue(expected);
-  }
-
-  private void assertNotCached(String key) throws InterruptedException, ExecutionException {
-    var cached = getCached(entryCache, key);
-    assertThat(cached).isNotPresent();
   }
 }

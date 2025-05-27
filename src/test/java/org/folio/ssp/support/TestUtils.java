@@ -1,5 +1,7 @@
 package org.folio.ssp.support;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CaffeineCache;
 import io.smallrye.mutiny.Uni;
@@ -21,5 +23,9 @@ public class TestUtils {
     var future = cache.as(CaffeineCache.class).getIfPresent(key);
 
     return future != null ? Optional.of((String) future.get()) : Optional.empty();
+  }
+
+  public static void putInCache(Cache cache, String key, String value) {
+    cache.as(CaffeineCache.class).put(key, completedFuture(value));
   }
 }
