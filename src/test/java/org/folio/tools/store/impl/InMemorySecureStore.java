@@ -39,6 +39,10 @@ public final class InMemorySecureStore implements SecureStore {
 
   @Override
   public void set(String key, String value) {
-    data.put(key, value);
+    if (value == null) {
+      data.remove(key);
+    } else {
+      data.put(key, value);
+    }
   }
 }
