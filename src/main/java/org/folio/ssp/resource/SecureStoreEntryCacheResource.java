@@ -4,12 +4,12 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import java.util.Set;
+import org.folio.ssp.model.validation.constraints.NotBlankKey;
 import org.folio.ssp.service.SecureStoreEntryCacheService;
 
 @Path("/entry-cache")
@@ -26,7 +26,7 @@ public class SecureStoreEntryCacheResource {
 
   @DELETE
   @Path("{key}")
-  public Uni<Void> invalidateEntry(@NotBlank String key) {
+  public Uni<Void> invalidateEntry(@NotBlankKey String key) {
     return cacheService.invalidate(key);
   }
 

@@ -7,6 +7,7 @@ import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
+import static org.folio.ssp.model.error.ErrorCode.VALIDATION_ERROR;
 import static org.folio.ssp.support.AssertionUtils.assertCached;
 import static org.folio.ssp.support.AssertionUtils.assertNotCached;
 import static org.folio.ssp.support.TestConstants.KEY1;
@@ -111,12 +112,14 @@ class SecureStoreEntryCacheResourceTest {
       .log().ifValidationFails()
       .assertThat()
       .statusCode(is(SC_BAD_REQUEST))
-      .contentType(is(APPLICATION_JSON))
+      .contentType(containsString(APPLICATION_JSON))
       .body(
-        "title", is("Constraint Violation"),
-        "status", is(SC_BAD_REQUEST),
-        "violations[0].field", is("invalidateEntry.key"),
-        "violations[0].message", is("must not be blank")
+        "errors[0].type", is("ConstraintViolationException"),
+        "errors[0].code", is(VALIDATION_ERROR.getValue()),
+        "errors[0].message", is("Validation failed"),
+        "errors[0].parameters[0].key", is("invalidateEntry.key"),
+        "errors[0].parameters[0].value", is("Key must not be blank"),
+        "total_records", is(1)
       );
   }
 
