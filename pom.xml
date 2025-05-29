@@ -40,6 +40,7 @@
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito-core.version>5.8.0</mockito-core.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
+    <testcontainer.version>1.21.0</testcontainer.version>
     <skipSurefireTests>false</skipSurefireTests>
 
     <!-- Plugin properties-->
@@ -185,12 +186,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!--<dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-junit5</artifactId>
-      <scope>test</scope>
-    </dependency>-->
-
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5-mockito</artifactId>
@@ -249,16 +244,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.wiremock</groupId>
-      <artifactId>wiremock</artifactId>
-      <version>${wiremock.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.smallrye</groupId>
-      <artifactId>smallrye-fault-tolerance-standalone</artifactId>
-      <version>6.9.1</version>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>vault</artifactId>
+      <version>${testcontainer.version}</version>
       <scope>test</scope>
     </dependency>
 
