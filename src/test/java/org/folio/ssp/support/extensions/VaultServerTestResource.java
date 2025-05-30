@@ -5,22 +5,30 @@ import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
 import io.quarkus.test.common.QuarkusTestResourceConfigurableLifecycleManager;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.logging.log4j.Logger;
+import org.testcontainers.containers.output.BaseConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.vault.VaultContainer;
 import org.testcontainers.vault.VaultLogLevel;
 
 @Log4j2
-public class VaultExtension implements QuarkusTestResourceConfigurableLifecycleManager<EnableVault> {
+public class VaultServerTestResource implements QuarkusTestResourceConfigurableLifecycleManager<EnableVault> {
 
   private static final String VAULT_IMAGE = "hashicorp/vault:1.13.3";
+
+  private static Vault ACTIVE_VAULT;
 
   private VaultServerManager serverManager;
 
   @Override
   public Map<String, String> start() {
     serverManager.start();
-    
+
+    ACTIVE_VAULT = new Vault(serverManager.getVaultConfig());
+
     return Map.of(
       "SECRET_STORE_VAULT_TOKEN", serverManager.getVaultToken(),
       "SECRET_STORE_VAULT_ADDRESS", serverManager.getServerUrl()
@@ -29,6 +37,7 @@ public class VaultExtension implements QuarkusTestResourceConfigurableLifecycleM
 
   @Override
   public void stop() {
+    ACTIVE_VAULT = null;
     serverManager.stop();
   }
 
@@ -39,15 +48,21 @@ public class VaultExtension implements QuarkusTestResourceConfigurableLifecycleM
 
   @Override
   public void inject(TestInjector testInjector) {
-    var vault = new Vault(serverManager.getVaultConfig());
-
     testInjector.injectIntoFields(
-      vault,
+      new Vault(serverManager.getVaultConfig()),
       new TestInjector.AnnotatedAndMatchesType(InjectVault.class, Vault.class));
 
     testInjector.injectIntoFields(
       new VaultConnectionConfig(serverManager.getServerUrl(), serverManager.getVaultToken()),
       new TestInjector.AnnotatedAndMatchesType(InjectVaultConnectionConfig.class, VaultConnectionConfig.class));
+  }
+
+  static Vault getActiveVault() {
+    if (ACTIVE_VAULT == null) {
+      throw new IllegalStateException("Vault client isn't initialized");
+    }
+
+    return ACTIVE_VAULT;
   }
 
   private static final class VaultServerManager {
@@ -98,7 +113,8 @@ public class VaultExtension implements QuarkusTestResourceConfigurableLifecycleM
 
       vaultContainer = new VaultContainer<>(VAULT_IMAGE)
         .withVaultToken(VAULT_TOKEN)
-        .withEnv(VAULT_LOG_LEVEL_ENV, logLevel.config);
+        .withEnv(VAULT_LOG_LEVEL_ENV, logLevel.config)
+        .withLogConsumer(new Log4j2LogConsumer(log));
 
       if (!ObjectUtils.isEmpty(initCommands)) {
         vaultContainer.withInitCommand(initCommands);
@@ -122,6 +138,44 @@ public class VaultExtension implements QuarkusTestResourceConfigurableLifecycleM
         } finally {
           vaultContainer = null;
         }
+      }
+    }
+  }
+
+  @RequiredArgsConstructor
+  private static final class Log4j2LogConsumer extends BaseConsumer<Log4j2LogConsumer> {
+
+    private final Logger logger;
+    private final boolean separateOutputStreams;
+
+    Log4j2LogConsumer(Logger log) {
+      this(log, false);
+    }
+
+    @Override
+    public void accept(OutputFrame outputFrame) {
+      final OutputFrame.OutputType outputType = outputFrame.getType();
+      final String utf8String = outputFrame.getUtf8StringWithoutLineEnding();
+
+      switch (outputType) {
+        case END:
+          break;
+        case STDOUT:
+          if (separateOutputStreams) {
+            logger.info("{}", utf8String);
+          } else {
+            logger.info("{}: {}", outputType, utf8String);
+          }
+          break;
+        case STDERR:
+          if (separateOutputStreams) {
+            logger.error("{}", utf8String);
+          } else {
+            logger.info("{}: {}", outputType, utf8String);
+          }
+          break;
+        default:
+          throw new IllegalArgumentException("Unexpected outputType " + outputType);
       }
     }
   }

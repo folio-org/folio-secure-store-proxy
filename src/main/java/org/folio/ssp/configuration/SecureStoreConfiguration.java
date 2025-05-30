@@ -82,7 +82,7 @@ public class SecureStoreConfiguration {
         .keystorePassword(getValue(VAULT_PREFIX, "keystore-password"))
         .keystoreFilePath(getValue(VAULT_PREFIX, "keystore-file-path"))
         .truststoreFilePath(getValue(VAULT_PREFIX, "truststore-file-path"))
-        .secretRoot(DEFAULT_VAULT_SECRET_ROOT)
+        .secretRoot(getValue(VAULT_PREFIX, "secret-root", DEFAULT_VAULT_SECRET_ROOT))
         .build();
     }
   }
