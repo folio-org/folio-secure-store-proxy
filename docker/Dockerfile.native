@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/folio-secure-store-proxy .
+# docker build -f src/main/docker/Dockerfile.native -t folio-secure-store-proxy .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/folio-secure-store-proxy
+# docker run -i --rm -p 8081:8081 folio-secure-store-proxy
 #
 # The ` registry.access.redhat.com/ubi8/ubi-minimal:8.10` base image is based on UBI 9.
 # To use UBI 8, switch to `quay.io/ubi8/ubi-minimal:8.10`.
@@ -23,7 +23,7 @@ RUN chown 1001 /work \
     && chown 1001:root /work
 COPY --chown=1001:root --chmod=0755 target/*-runner /work/application
 
-EXPOSE 8080
+EXPOSE 8081
 USER 1001
 
 ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]
