@@ -29,13 +29,11 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.version>3.23.0</quarkus.platform.version>
     <applications-poc-tools.version>3.1.0-SNAPSHOT</applications-poc-tools.version>
-    <cloudwatch.version>6.6.0</cloudwatch.version>
     <bcpkix-fips.version>2.1.9</bcpkix-fips.version>
 
     <lombok.version>1.18.38</lombok.version>
 
     <!-- Test properties -->
-    <jjwt.version>0.12.6</jjwt.version>
     <wiremock.version>3.13.0</wiremock.version>
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito-core.version>5.8.0</mockito-core.version>
@@ -56,17 +54,8 @@
     <aws-crt.version>0.38.4</aws-crt.version>
 
     <sonar.exclusions>
-      src/main/java/**/sidecar/model/**,
-      src/main/java/**/sidecar/integration/**/model/**,
-      src/main/java/**/sidecar/**/configuration/**,
-      <!-- Temporary ignored until deleted or added to quarkus application scope -->
-      src/main/java/**/sidecar/integration/keycloak/**,
-      src/main/java/**/sidecar/integration/okapi/UserPermissionService.java,
-      <!-- temporary ignore token related classes and egress handler -->
-      src/main/java/**/service/token/**,
-      src/main/java/**/service/routing/EgressRequestHandler.java,
-      src/main/java/**/sidecar/utils/FutureUtils.java,
-      src/main/java/**/sidecar/service/filter/RequestFilterService.java
+      src/main/java/**/ssp/model/**,
+      src/main/java/**/ssp/configuration/**
     </sonar.exclusions>
   </properties>
 
@@ -145,11 +134,6 @@
 
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-security</artifactId>
     </dependency>
 
@@ -177,12 +161,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5-internal</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -228,14 +206,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt</artifactId>
-      <version>${jjwt.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -357,7 +327,6 @@
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
           </systemPropertyVariables>
-          <!--<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>-->
           <useSystemClassLoader>false</useSystemClassLoader>
           <groups>unit</groups>
           <skip>${skipSurefireTests}</skip>
@@ -459,17 +428,8 @@
              - exclude domain classes / model classes, which are essentially simple POJO classes
                most of their body is generated with lombok. here is nothing to test or analyse
           -->
-          src/main/java/**/sidecar/model/**,
-          src/main/java/**/sidecar/integration/**/model/**,
-          src/main/java/**/sidecar/**/configuration/**,
-          <!-- Temporary ignored until deleted or added to quarkus application scope -->
-          src/main/java/**/sidecar/integration/keycloak/**,
-          src/main/java/**/sidecar/integration/okapi/UserPermissionService.java,
-          <!-- temporary ignore token related classes and egress handler -->
-          src/main/java/**/service/token/**,
-          src/main/java/**/service/routing/EgressRequestHandler.java,
-          src/main/java/**/sidecar/utils/FutureUtils.java,
-          src/main/java/**/sidecar/service/filter/RequestFilterService.java
+          src/main/java/**/ssp/model/**,
+          src/main/java/**/ssp/configuration/**
         </sonar.exclusions>
         <sonar.coverage.jacoco.xmlReportPaths>
           target/site/jacoco-aggregate/jacoco.xml
