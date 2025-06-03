@@ -1,3 +1,3 @@
 ## Version `v1.0.0` (in progress)
-* TBD (JIRAPRJ-100)
+* Develop a Dedicated Service as a Secure Key Store (FSSP-1)
 ---
