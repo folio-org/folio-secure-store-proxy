@@ -19,7 +19,7 @@ public class VaultServerTestResource implements QuarkusTestResourceConfigurableL
 
   private static final String VAULT_IMAGE = "hashicorp/vault:1.13.3";
 
-  private static Vault ACTIVE_VAULT;
+  private static Vault activeVault;
 
   private VaultServerManager serverManager;
 
@@ -27,7 +27,7 @@ public class VaultServerTestResource implements QuarkusTestResourceConfigurableL
   public Map<String, String> start() {
     serverManager.start();
 
-    ACTIVE_VAULT = new Vault(serverManager.getVaultConfig());
+    activeVault = new Vault(serverManager.getVaultConfig());
 
     return Map.of(
       "SECRET_STORE_VAULT_TOKEN", serverManager.getVaultToken(),
@@ -37,7 +37,7 @@ public class VaultServerTestResource implements QuarkusTestResourceConfigurableL
 
   @Override
   public void stop() {
-    ACTIVE_VAULT = null;
+    activeVault = null;
     serverManager.stop();
   }
 
@@ -58,11 +58,11 @@ public class VaultServerTestResource implements QuarkusTestResourceConfigurableL
   }
 
   static Vault getActiveVault() {
-    if (ACTIVE_VAULT == null) {
+    if (activeVault == null) {
       throw new IllegalStateException("Vault client isn't initialized");
     }
 
-    return ACTIVE_VAULT;
+    return activeVault;
   }
 
   private static final class VaultServerManager {

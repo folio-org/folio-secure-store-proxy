@@ -92,6 +92,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @NullSource
+  @SuppressWarnings("java:S5778")
   void get_negative_nullKey(String key) throws Exception {
     assertThatThrownBy(() -> await(service.get(key)))
       .isInstanceOf(NullPointerException.class)
@@ -103,6 +104,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @EmptySource
+  @SuppressWarnings("java:S5778")
   void get_negative_blankKey(String key) throws Exception {
     assertThatThrownBy(() -> await(service.get(key)))
       .isInstanceOf(CacheException.class)
@@ -114,6 +116,7 @@ class SecureStoreEntryServiceTest {
   }
 
   @Test
+  @SuppressWarnings("java:S5778")
   void get_negative_nullValue() throws Exception {
     when(secureStore.get(KEY1)).thenReturn(null);
 
@@ -126,6 +129,7 @@ class SecureStoreEntryServiceTest {
   }
 
   @Test
+  @SuppressWarnings("java:S5778")
   void get_negative_notFound() throws Exception {
     when(secureStore.get(KEY1)).thenThrow(new NotFoundException("Entry not found: key = " + KEY1));
 
@@ -164,6 +168,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @NullAndEmptySource
+  @SuppressWarnings("java:S5778")
   void put_negative_blankKey(String key) throws Exception {
     assertThatThrownBy(() -> await(service.put(key, VALUE1)))
       .isInstanceOf(IllegalArgumentException.class)
@@ -175,6 +180,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @NullAndEmptySource
+  @SuppressWarnings("java:S5778")
   void put_negative_blankValue(String value) throws Exception {
     assertThatThrownBy(() -> await(service.put(KEY1, value)))
       .isInstanceOf(IllegalArgumentException.class)
@@ -209,6 +215,7 @@ class SecureStoreEntryServiceTest {
 
   @ParameterizedTest
   @NullAndEmptySource
+  @SuppressWarnings("java:S5778")
   void delete_negative_blankKey(String key) {
     assertThatThrownBy(() -> await(service.delete(key)))
       .isInstanceOf(IllegalArgumentException.class)

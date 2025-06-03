@@ -48,7 +48,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
   "write test-secrets/config max_versions=1 delete_version_after=0s cas_required=false" // configure the engine
 })
 @ExtendWith(VaultTestExtension.class)
-public class SecureStoreProxyIT {
+class SecureStoreProxyIT {
 
   @InjectVaultConnectionConfig VaultConnectionConfig vaultConnectionConfig;
   @InjectVault Vault vault;

@@ -68,6 +68,7 @@ class SecureStoreEntryCacheServiceTest {
 
   @ParameterizedTest
   @NullSource
+  @SuppressWarnings("java:S5778")
   void invalidate_negative_blankKey(String key) {
     assertThatThrownBy(() -> await(cacheService.invalidate(key)))
       .isInstanceOf(NullPointerException.class)

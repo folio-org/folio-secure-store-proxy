@@ -3,7 +3,6 @@ package org.folio.ssp.resource;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,8 +14,11 @@ import org.folio.ssp.service.SecureStoreEntryCacheService;
 @Path("/entry-cache")
 public class SecureStoreEntryCacheResource {
 
-  @Inject
-  SecureStoreEntryCacheService cacheService;
+  private final SecureStoreEntryCacheService cacheService;
+
+  public SecureStoreEntryCacheResource(SecureStoreEntryCacheService cacheService) {
+    this.cacheService = cacheService;
+  }
 
   @GET
   @Produces(APPLICATION_JSON)

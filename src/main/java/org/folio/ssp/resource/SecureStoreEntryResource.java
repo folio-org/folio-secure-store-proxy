@@ -3,7 +3,6 @@ package org.folio.ssp.resource;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -11,18 +10,19 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import lombok.AllArgsConstructor;
 import org.folio.ssp.model.SecureStoreEntry;
 import org.folio.ssp.model.validation.constraints.NotBlankKey;
 import org.folio.ssp.service.SecureStoreEntryService;
 import org.jboss.resteasy.reactive.RestPath;
 
 @Path("/entries")
-@AllArgsConstructor
 public class SecureStoreEntryResource {
 
-  @Inject
-  SecureStoreEntryService entryService;
+  private final SecureStoreEntryService entryService;
+
+  public SecureStoreEntryResource(SecureStoreEntryService entryService) {
+    this.entryService = entryService;
+  }
 
   @GET
   @Path("{key}")
