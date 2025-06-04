@@ -114,14 +114,14 @@ This module is built with Apache Maven.
 
 To build the module, which includes compiling code, running tests, and packaging the application, execute:
 ```shell script
-./mvnw clean package
+./mvn clean package
 ```
 This command packages the application as a "fast JAR". The main JAR file (`quarkus-run.jar`) and its dependencies (`lib/` directory) will be located in the `target/quarkus-app/` directory.
 
 ### Über-JAR
 To build an _über-jar_ (a single executable JAR containing all dependencies), run:
 ```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+./mvn package -Dquarkus.package.jar.type=uber-jar
 ```
 The resulting JAR (e.g., `folio-secure-store-proxy-1.0.0-SNAPSHOT-runner.jar`) will be in the `target/` directory.
 
@@ -130,11 +130,11 @@ You can create a native executable using GraalVM for improved startup time and r
 
 If GraalVM is installed and configured locally:
 ```shell script
-./mvnw package -Dnative
+./mvn package -Dnative
 ```
 If you do not have GraalVM installed, you can build the native executable within a Docker container:
 ```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+./mvn package -Dnative -Dquarkus.native.container-build=true
 ```
 The native executable (e.g., `folio-secure-store-proxy-1.0.0-SNAPSHOT-runner`) will be created in the `target/` directory.
 For more detailed information on building native executables with Quarkus, refer to the [Quarkus Maven tooling guide](https://quarkus.io/guides/maven-tooling).
@@ -151,7 +151,7 @@ docker build -f docker/Dockerfile.fips -t {{image-tag}}:{{image-version}}
 ### Running in Development Mode
 To run the application in development mode, which enables live coding and hot reloading:
 ```shell script
-./mvnw quarkus:dev
+./mvn quarkus:dev
 ```
 The application will typically be accessible at `http://localhost:8081` (or the port configured via `quarkus.http.port`).
 The Quarkus Dev UI is available at `http://localhost:8080/q/dev/` during development mode.
@@ -159,7 +159,7 @@ The Quarkus Dev UI is available at `http://localhost:8080/q/dev/` during develop
 ### Running the Packaged Application
 
 #### Standard JAR (Fast JAR)
-After building with `./mvnw package`, run the application using:
+After building with `./mvn package`, run the application using:
 ```shell script
 java -jar target/quarkus-app/quarkus-run.jar
 ```
@@ -194,7 +194,7 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
 
 - **Native Mode (`docker/Dockerfile.native`):**
   Uses the native executable built with GraalVM.
-  First, ensure the native executable is built (e.g., `./mvnw package -Dnative`). Then, build the image:
+  First, ensure the native executable is built (e.g., `./mvn package -Dnative`). Then, build the image:
   ```shell script
   docker build -f docker/Dockerfile.native -t folio-secure-store-proxy-native .
   ```
@@ -206,7 +206,7 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
 
 - **Legacy JAR Mode (`docker/Dockerfile.legacy-jar`):**
   For running as a traditional "legacy" JAR.
-  First, build the legacy JAR: `./mvnw package -Dquarkus.package.type=legacy-jar`. Then, build the image:
+  First, build the legacy JAR: `./mvn package -Dquarkus.package.type=legacy-jar`. Then, build the image:
   ```shell script
   docker build -f docker/Dockerfile.legacy-jar -t folio-secure-store-proxy-legacy-jar .
   ```
