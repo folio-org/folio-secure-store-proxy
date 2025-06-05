@@ -13,7 +13,7 @@ import org.folio.ssp.model.error.Error;
 import org.folio.ssp.model.error.ErrorCode;
 import org.folio.ssp.model.error.ErrorResponse;
 import org.folio.ssp.model.error.Parameter;
-import org.folio.tools.store.exception.NotFoundException;
+import org.folio.tools.store.exception.SecretNotFoundException;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -24,7 +24,7 @@ import org.jboss.resteasy.reactive.server.UnwrapException;
 public class ExceptionHandler {
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> handleSecureStoreNotFoundException(NotFoundException e, UriInfo uriInfo) {
+  public RestResponse<ErrorResponse> handleSecureStoreNotFoundException(SecretNotFoundException e, UriInfo uriInfo) {
     log.debug("Exception occurred while calling the endpoint: path = {}, exc = {}", uriInfo.getPath(), e);
 
     var error = new Error()

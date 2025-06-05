@@ -33,16 +33,12 @@ public final class InMemorySecureStore implements SecureStore {
   }
 
   @Override
-  public String get(String clientId, String tenant, String username) {
-    throw new UnsupportedOperationException("Deprecated method is not supported.");
+  public void set(String key, String value) {
+    data.put(key, value);
   }
 
   @Override
-  public void set(String key, String value) {
-    if (value == null) {
-      data.remove(key);
-    } else {
-      data.put(key, value);
-    }
+  public void delete(String key) {
+    data.remove(key);
   }
 }

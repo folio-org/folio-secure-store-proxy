@@ -24,7 +24,7 @@ import jakarta.inject.Inject;
 import org.folio.ssp.configuration.Configured;
 import org.folio.support.types.UnitTest;
 import org.folio.tools.store.SecureStore;
-import org.folio.tools.store.exception.NotFoundException;
+import org.folio.tools.store.exception.SecretNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -121,7 +121,7 @@ class SecureStoreEntryServiceTest {
     when(secureStore.get(KEY1)).thenReturn(null);
 
     assertThatThrownBy(() -> await(service.get(KEY1)))
-      .isInstanceOf(NotFoundException.class)
+      .isInstanceOf(SecretNotFoundException.class)
       .hasMessageContaining("Entry not found: key = " + KEY1);
 
     assertNotCached(entryCache, KEY1);
@@ -131,10 +131,10 @@ class SecureStoreEntryServiceTest {
   @Test
   @SuppressWarnings("java:S5778")
   void get_negative_notFound() throws Exception {
-    when(secureStore.get(KEY1)).thenThrow(new NotFoundException("Entry not found: key = " + KEY1));
+    when(secureStore.get(KEY1)).thenThrow(new SecretNotFoundException("Entry not found: key = " + KEY1));
 
     assertThatThrownBy(() -> await(service.get(KEY1)))
-      .isInstanceOf(NotFoundException.class)
+      .isInstanceOf(SecretNotFoundException.class)
       .hasMessageContaining("Entry not found: key = " + KEY1);
 
     assertNotCached(entryCache, KEY1);
@@ -202,7 +202,7 @@ class SecureStoreEntryServiceTest {
     assertNotCached(entryCache, KEY1);
 
     verify(secureStore, times(1)).get(KEY1);
-    verify(secureStore, times(1)).set(KEY1, null);
+    verify(secureStore, times(1)).delete(KEY1);
   }
 
   @Test
@@ -210,7 +210,7 @@ class SecureStoreEntryServiceTest {
     await(service.delete(KEY1));
     assertNotCached(entryCache, KEY1);
 
-    verify(secureStore, times(1)).set(KEY1, null);
+    verify(secureStore, times(1)).delete(KEY1);
   }
 
   @ParameterizedTest

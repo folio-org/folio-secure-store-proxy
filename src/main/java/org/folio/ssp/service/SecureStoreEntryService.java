@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 import lombok.extern.log4j.Log4j2;
 import org.folio.ssp.configuration.Configured;
 import org.folio.tools.store.SecureStore;
-import org.folio.tools.store.exception.NotFoundException;
+import org.folio.tools.store.exception.SecretNotFoundException;
 
 @Log4j2
 @ApplicationScoped
@@ -73,7 +73,7 @@ public class SecureStoreEntryService {
 
       if (isEmpty(value)) {
         log.debug("Entry not found: key = {}", key);
-        throw new NotFoundException("Entry not found: key = " + key);
+        throw new SecretNotFoundException("Entry not found: key = " + key);
       } else {
         log.debug("Entry retrieved: key = {}, value = {}", key, value);
         return value;
@@ -84,8 +84,7 @@ public class SecureStoreEntryService {
   private Supplier<Object> deleteInternal(String key) {
     return () -> {
       log.debug("Deleting entry from secure store: key = {}", key);
-      // TODO: replace with secureStore.delete(key) when implemented
-      secureStore.set(key, null);
+      secureStore.delete(key);
       log.debug("Entry deleted: key = {}", key);
 
       return null;

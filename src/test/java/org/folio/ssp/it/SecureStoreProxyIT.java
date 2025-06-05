@@ -104,7 +104,7 @@ class SecureStoreProxyIT {
       .statusCode(is(SC_NOT_FOUND))
       .contentType(containsString(APPLICATION_JSON))
       .body(
-        "errors[0].type", is("NotFoundException"),
+        "errors[0].type", is("SecretNotFoundException"),
         "errors[0].code", is(NOT_FOUND_ERROR.getValue()),
         "errors[0].message", is("Attribute: " + KEY2 + " not set for folio/tenant1"),
         "total_records", is(1)
