@@ -38,7 +38,7 @@
     <assertj-core.version>3.27.3</assertj-core.version>
     <mockito-core.version>5.8.0</mockito-core.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
-    <testcontainer.version>1.21.1</testcontainer.version>
+    <testcontainer.version>1.21.2</testcontainer.version>
     <skipSurefireTests>false</skipSurefireTests>
     <quarkusJacocoEnabled>true</quarkusJacocoEnabled>
 
