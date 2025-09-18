@@ -1,6 +1,5 @@
 package org.folio.ssp.resource;
 
-import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
@@ -10,6 +9,7 @@ import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
 import static org.folio.ssp.model.error.ErrorCode.VALIDATION_ERROR;
 import static org.folio.ssp.support.AssertionUtils.assertCached;
 import static org.folio.ssp.support.AssertionUtils.assertNotCached;
+import static org.folio.ssp.support.RestUtils.givenAdminClient;
 import static org.folio.ssp.support.TestConstants.KEY1;
 import static org.folio.ssp.support.TestConstants.KEY2;
 import static org.folio.ssp.support.TestConstants.VALUE1;
@@ -48,7 +48,7 @@ class SecureStoreEntryCacheResourceTest {
     putInCache(entryCache, KEY1, VALUE1);
     putInCache(entryCache, KEY2, VALUE2);
 
-    given()
+    givenAdminClient()
       .when().get()
       .then()
       .log().ifValidationFails()
@@ -64,7 +64,7 @@ class SecureStoreEntryCacheResourceTest {
 
   @Test
   void getAllEntryKeys_positive_empty() {
-    given()
+    givenAdminClient()
       .when().get()
       .then()
       .log().ifValidationFails()
@@ -79,7 +79,7 @@ class SecureStoreEntryCacheResourceTest {
     putInCache(entryCache, KEY1, VALUE1);
     putInCache(entryCache, KEY2, VALUE2);
 
-    given()
+    givenAdminClient()
       .when().delete("/{key}", KEY1)
       .then()
       .log().ifValidationFails()
@@ -94,7 +94,7 @@ class SecureStoreEntryCacheResourceTest {
   void invalidate_positive_notCachedKey() throws Exception {
     putInCache(entryCache, KEY1, VALUE1);
 
-    given()
+    givenAdminClient()
       .when().delete("/{key}", "notCachedKey")
       .then()
       .log().ifValidationFails()
@@ -106,7 +106,7 @@ class SecureStoreEntryCacheResourceTest {
 
   @Test
   void invalidate_negative_blankKey() {
-    given()
+    givenAdminClient()
       .when().delete("/{key}", StringUtils.SPACE)
       .then()
       .log().ifValidationFails()
@@ -128,7 +128,7 @@ class SecureStoreEntryCacheResourceTest {
     putInCache(entryCache, KEY1, VALUE1);
     putInCache(entryCache, KEY2, VALUE2);
 
-    given()
+    givenAdminClient()
       .when().delete()
       .then()
       .log().ifValidationFails()
@@ -141,7 +141,7 @@ class SecureStoreEntryCacheResourceTest {
 
   @Test
   void invalidateAll_positive_withEmptyCache() {
-    given()
+    givenAdminClient()
       .when().delete()
       .then()
       .log().ifValidationFails()

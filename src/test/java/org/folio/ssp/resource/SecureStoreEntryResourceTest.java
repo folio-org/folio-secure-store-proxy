@@ -1,6 +1,5 @@
 package org.folio.ssp.resource;
 
-import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
@@ -12,6 +11,7 @@ import static org.folio.ssp.SecureStoreConstants.ENTRY_CACHE;
 import static org.folio.ssp.model.error.ErrorCode.VALIDATION_ERROR;
 import static org.folio.ssp.support.AssertionUtils.assertCached;
 import static org.folio.ssp.support.AssertionUtils.assertNotCached;
+import static org.folio.ssp.support.RestUtils.givenUserClient;
 import static org.folio.ssp.support.TestConstants.KEY1;
 import static org.folio.ssp.support.TestConstants.VALUE1;
 import static org.folio.ssp.support.TestConstants.VALUE2;
@@ -53,7 +53,7 @@ class SecureStoreEntryResourceTest {
   void getEntry_positive() throws Exception {
     secureStore.set(KEY1, VALUE1);
 
-    given()
+    givenUserClient()
       .when().get("{key}", KEY1)
       .then()
       .log().ifValidationFails()
@@ -70,7 +70,7 @@ class SecureStoreEntryResourceTest {
 
   @Test
   void getEntry_negative_notFound() {
-    given()
+    givenUserClient()
       .when().get("{key}", KEY1)
       .then()
       .log().ifValidationFails()
@@ -87,7 +87,7 @@ class SecureStoreEntryResourceTest {
 
   @Test
   void getEntry_negative_blankKey() {
-    given()
+    givenUserClient()
       .when().get("/{key}", SPACE)
       .then()
       .log().ifValidationFails()
@@ -108,7 +108,7 @@ class SecureStoreEntryResourceTest {
   void setEntry_positive_entryCreated() throws Exception {
     SecureStoreEntry entry = SecureStoreEntry.of(KEY1, VALUE1);
 
-    given()
+    givenUserClient()
       .contentType(ContentType.JSON)
       .body(entry)
       .when().put("{key}", KEY1)
@@ -127,7 +127,7 @@ class SecureStoreEntryResourceTest {
 
     SecureStoreEntry entry = SecureStoreEntry.of(KEY1, VALUE2);
 
-    given()
+    givenUserClient()
       .contentType(ContentType.JSON)
       .body(entry)
       .when().put("{key}", KEY1)
@@ -144,7 +144,7 @@ class SecureStoreEntryResourceTest {
   void setEntry_negative_blankKey() {
     SecureStoreEntry entry = SecureStoreEntry.of(KEY1, VALUE1);
 
-    given()
+    givenUserClient()
       .contentType(ContentType.JSON)
       .body(entry)
       .when().put("{key}", SPACE)
@@ -167,7 +167,7 @@ class SecureStoreEntryResourceTest {
   void setEntry_negative_blankValue() {
     SecureStoreEntry entry = SecureStoreEntry.of(KEY1, null);
 
-    given()
+    givenUserClient()
       .contentType(ContentType.JSON)
       .body(entry)
       .when().put("{key}", KEY1)
@@ -190,7 +190,7 @@ class SecureStoreEntryResourceTest {
   void deleteEntry_positive() throws Exception {
     secureStore.set(KEY1, VALUE1);
 
-    given()
+    givenUserClient()
       .when().delete("{key}", KEY1)
       .then()
       .log().ifValidationFails()
@@ -203,7 +203,7 @@ class SecureStoreEntryResourceTest {
 
   @Test
   void deleteEntry_positive_notStoredEntry() throws Exception {
-    given()
+    givenUserClient()
       .when().delete("{key}", KEY1)
       .then()
       .log().ifValidationFails()
@@ -216,7 +216,7 @@ class SecureStoreEntryResourceTest {
 
   @Test
   void deleteEntry_negative_blankKey() {
-    given()
+    givenUserClient()
       .when().delete("{key}", SPACE)
       .then()
       .log().ifValidationFails()
