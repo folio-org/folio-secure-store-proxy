@@ -9,6 +9,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.ssp.model.error.ErrorCode.NOT_FOUND_ERROR;
 import static org.folio.ssp.model.error.ErrorCode.VALIDATION_ERROR;
+import static org.folio.ssp.support.RestUtils.givenUserClient;
 import static org.folio.ssp.support.TestConstants.KEY1;
 import static org.folio.ssp.support.TestConstants.KEY2;
 import static org.folio.ssp.support.TestConstants.SECRET_PATH_TENANT1;
@@ -96,7 +97,7 @@ class SecureStoreProxyIT {
     KEY1 + "=" + VALUE1
   })
   void getEntry_negative_notFound() {
-    given()
+    givenUserClient()
       .when().get(sseResourceUrl + "/{key}", TENANT1.getKeyPrefix() + KEY2)
       .then()
       .log().ifValidationFails()
@@ -140,7 +141,7 @@ class SecureStoreProxyIT {
   void setEntry_negative_emptyValue(String value) {
     var requestBody = SecureStoreEntry.of(KEY1, value);
 
-    given()
+    givenUserClient()
       .body(requestBody)
       .contentType(APPLICATION_JSON)
       .when().put(sseResourceUrl + "/{key}", TENANT1.getKeyPrefix() + KEY1)
@@ -162,7 +163,7 @@ class SecureStoreProxyIT {
   private void setEntryAndCheck(Tenants tenant, String key, String value) {
     var requestBody = SecureStoreEntry.of(key, value);
 
-    given()
+    givenUserClient()
       .body(requestBody)
       .contentType(APPLICATION_JSON)
       .when().put(sseResourceUrl + "/{key}", tenant.getKeyPrefix() + key)
@@ -173,7 +174,7 @@ class SecureStoreProxyIT {
   }
 
   private void getEntryAndCheck(Tenants tenant, String key, String expectedValue) {
-    given()
+    givenUserClient()
       .when().get(sseResourceUrl + "/{key}", tenant.getKeyPrefix() + key)
       .then()
       .log().ifValidationFails()
