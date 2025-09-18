@@ -55,7 +55,7 @@ class SecureStoreProxyIT {
   @InjectVault Vault vault;
 
   @TestHTTPEndpoint(SecureStoreEntryResource.class)
-  @TestHTTPResource
+  @TestHTTPResource(tls = true)
   String sseResourceUrl;
 
   @Test
