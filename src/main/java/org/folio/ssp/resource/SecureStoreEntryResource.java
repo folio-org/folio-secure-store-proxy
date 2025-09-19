@@ -1,8 +1,10 @@
 package org.folio.ssp.resource;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.folio.ssp.SecureStoreConstants.ROLE_SECRETS_USER;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -16,6 +18,7 @@ import org.folio.ssp.service.SecureStoreEntryService;
 import org.jboss.resteasy.reactive.RestPath;
 
 @Path("/entries")
+@RolesAllowed(ROLE_SECRETS_USER)
 public class SecureStoreEntryResource {
 
   private final SecureStoreEntryService entryService;
