@@ -8,9 +8,14 @@ This software is distributed under the terms of the Apache License, Version 2.0.
 
 - [Overview](#overview)
 - [API Description](#api-description)
+- [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
 - [Configuration](#configuration)
   - [General Application Configuration](#general-application-configuration)
-  - [SSL Configuration (FIPS profile)](#ssl-configuration-fips-profile)
+  - [Mutual TLS (mTLS) Configuration](#mutual-tls-mtls-configuration)
+    - [What is Mutual TLS (mTLS)?](#what-is-mutual-tls-mtls)
+    - [Purpose for folio-secure-store-proxy](#purpose-for-folio-secure-store-proxy)
+    - [Configuration Properties](#configuration-properties)
+    - [Certificate and Keystore/Truststore Management](#certificate-and-keystoretruststore-management)
   - [Logging Configuration](#logging-configuration)
   - [Secret Store Configuration](#secret-store-configuration)
     - [AWS SSM Specific](#aws-ssm-specific)
@@ -35,6 +40,24 @@ The module exposes a RESTful API for retrieving secrets. The complete OpenAPI sp
 
     /q/openapi
 
+## Role-Based Access Control (RBAC)
+
+The `folio-secure-store-proxy` employs Role-Based Access Control (RBAC) to manage and protect access to its various endpoints. This ensures that only authorized clients, identified through their mTLS certificates, can perform specific operations.
+
+Access roles are determined by the Common Name (CN) value extracted from the client's mTLS certificate. The following roles are defined and mapped based on the client certificate's CN:
+
+*   **`secrets-user`**: This role grants access to secure store entry-related operations (e.g., fetching, storing, updating secrets).
+*   **`secrets-cache-admin`**: This role grants access to secure store entry cache-related operations (e.g., clearing the cache).
+
+**Client Certificate CN to Role Mapping:**
+
+| Client Certificate CN | Assigned Roles                              | Description                                                                                                                                                                                                                                                                   |
+|-----------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fssp-user`           | `secrets-user`                              | Clients with a certificate having `CN=fssp-user` are granted the `secrets-user` role, allowing them to perform basic secret management operations.                                                                                                                            |
+| `fssp-admin`          | `secrets-user`, `secrets-cache-admin`       | Clients with a certificate having `CN=fssp-admin` are granted both `secrets-user` and `secrets-cache-admin` roles. This provides full access to secret management operations as well as cache administration.                                                                 |
+
+This mechanism leverages the robust authentication provided by mTLS to securely assign roles to clients. For a deeper understanding of how mTLS integrates with RBAC in a Quarkus application, refer to the [Quarkus Security Authentication Mechanisms guide on Mutual TLS](https://quarkus.io/guides/security-authentication-mechanisms#mutual-tls).
+
 ## Configuration
 
 The application is configured through properties in the `application.properties` file. Many of these properties can be overridden by environment variables. For Quarkus properties (e.g., `quarkus.http.port`), the corresponding environment variable typically follows the pattern `QUARKUS_HTTP_PORT` (uppercase, dots replaced by underscores). Properties specifically defined with `${ENV_VAR}` or `${ENV_VAR:default_value}` in `application.properties` are directly mapped to environment variables.
@@ -44,22 +67,143 @@ The application is configured through properties in the `application.properties`
 | Property Key                          | Description                                 | Default Value              |
 |---------------------------------------|---------------------------------------------|----------------------------|
 | `quarkus.application.name`            | The name of the application.                | `folio-secure-store-proxy` |
-| `quarkus.http.port`                   | The HTTP port the application listens on.   | `8081`                     |
 | `quarkus.http.ssl-port`               | The HTTPS port the application listens on.  | `8443`                     |
 | `quarkus.rest.path`                   | The base path for the REST API.             | `secure-store`             |
 | `quarkus.smallrye-health.root-path`   | The path for health check endpoints.        | `/admin/health`            |
 | `quarkus.security.security-providers` | Security providers used by the application. | `SunRsaSign,SunJCE`        |
 
-### SSL Configuration (FIPS profile)
-These properties are prefixed with `%fips.` in `application.properties`, meaning they apply when the `fips` Quarkus profile is active. The values are set via environment variables.
+### Mutual TLS (mTLS) Configuration
 
-| Property in `application.properties`                        | Environment Variable            | Description                                        |
-|-------------------------------------------------------------|---------------------------------|----------------------------------------------------|
-| `%fips.quarkus.http.ssl.certificate.key-store-file`         | `SSP_TLS_KEYSTORE_PATH`         | Path to the SSL keystore file.                     |
-| `%fips.quarkus.http.ssl.certificate.key-store-password`     | `SSP_TLS_KEYSTORE_PASSWORD`     | Password for the SSL keystore.                     |
-| `%fips.quarkus.http.ssl.certificate.key-store-password-key` | `SSP_TLS_KEYSTORE_KEY_PASSWORD` | Password for the key within the SSL keystore.      |
-| `%fips.quarkus.http.ssl.certificate.key-store-file-type`    | `SSP_TLS_KEY_STORE_FILE_TYPE`   | Type of the SSL keystore file (e.g., JKS, PKCS12). |
-| `%fips.quarkus.http.ssl.certificate.key-store-provider`     | `SSP_TLS_KEY_STORE_PROVIDER`    | Provider for the SSL keystore.                     |
+The `folio-secure-store-proxy` is designed to operate exclusively in Mutual TLS (mTLS) mode, ensuring robust, two-way authentication between the proxy server and its clients. This section details what mTLS is, why it's used here, and how to configure it, including examples for generating the necessary certificates and keystores/truststores.
+
+#### What is Mutual TLS (mTLS)?
+
+TLS (Transport Layer Security) is a cryptographic protocol designed to provide secure communication over a computer network. When you visit a website with `https://`, you're using TLS, where the server presents a certificate to the client for authentication (one-way authentication).
+
+**Mutual TLS (mTLS)** takes this a step further by requiring *both* the client and the server to authenticate each other using certificates issued by a trusted Certificate Authority (CA). This means:
+1.  The client verifies the server's identity.
+2.  The server verifies the client's identity.
+
+This mutual authentication significantly enhances security, ensuring that only trusted clients can communicate with the server, and vice versa.
+
+#### Purpose for `folio-secure-store-proxy`
+
+The `folio-secure-store-proxy` is a critical component for handling sensitive secrets. By enforcing mTLS, it ensures:
+*   **Strong Client Authentication:** Only applications possessing a valid, trusted client certificate can connect to the proxy and request secrets. This prevents unauthorized access even if the network is compromised.
+*   **Data Integrity and Confidentiality:** All communication between the client and the proxy is encrypted, protecting secrets in transit.
+
+**Important:** The `folio-secure-store-proxy` **can only be run in mTLS mode**. It does not support unencrypted HTTP connections or regular one-way TLS connections.
+
+#### Configuration Properties
+
+The mTLS configuration for the `folio-secure-store-proxy` (acting as the server) is managed via `application.properties` (or environment variables). The following Quarkus-specific properties are essential:
+
+| Property in `application.properties`                  | Environment Variable            | Description                                                                   |
+|-------------------------------------------------------|---------------------------------|-------------------------------------------------------------------------------|
+| `quarkus.http.ssl.certificate.key-store-file`         | `SSP_TLS_KEYSTORE_PATH`         | Path to the SSL keystore file.                                                |
+| `quarkus.http.ssl.certificate.key-store-password`     | `SSP_TLS_KEYSTORE_PASSWORD`     | Password for the SSL keystore.                                                |
+| `quarkus.http.ssl.certificate.key-store-password-key` | `SSP_TLS_KEYSTORE_KEY_PASSWORD` | Password for the key within the SSL keystore.                                 |
+| `quarkus.http.ssl.certificate.key-store-file-type`    | `SSP_TLS_KEY_STORE_FILE_TYPE`   | Type of the SSL keystore file (e.g., JKS, PKCS12).                            |
+| `quarkus.http.ssl.certificate.key-store-provider`     | `SSP_TLS_KEY_STORE_PROVIDER`    | Provider for the SSL keystore.                                                |
+| `quarkus.http.ssl.certificate.trust-store-file`       | `SSP_TLS_TRUSTSTORE_PATH`       | Path to the SSL truststore file (used to verify client certificates in mTLS). |
+| `quarkus.http.ssl.certificate.trust-store-password`   | `SSP_TLS_TRUSTSTORE_PASSWORD`   | Password for the SSL truststore.                                              |
+| `quarkus.http.ssl.certificate.trust-store-file-type`  | `SSP_TLS_TRUSTSTORE_FILE_TYPE`  | Type of the SSL truststore file (e.g., JKS, PKCS12).                          |
+| `quarkus.http.ssl.certificate.trust-store-provider`   | `SSP_TLS_TRUSTSTORE_PROVIDER`   | Provider for the SSL truststore.                                              |
+
+**Note:** The client connecting to the `folio-secure-store-proxy` will also need its own keystore (containing its private key and certificate) and a truststore (containing the CA certificate that signed the server's certificate). The specific properties for client-side mTLS configuration will depend on the client application's framework.
+
+#### Certificate and Keystore/Truststore Management
+
+To set up mTLS with self-signed certificates, you'll need to create a private key and a self-signed certificate for both the server and the client. Each party's truststore will then contain the *other party's* public self-signed certificate to establish mutual trust. This section provides examples using `openssl` (for generating keys and certificates) and `keytool` (for managing Java keystores).
+
+##### Prerequisites:
+
+*   **`openssl`**: For generating keys and self-signed certificates.
+*   **`keytool`**: A Java utility for managing keystores and truststores (comes with a Java Development Kit - JDK).
+
+##### Step 1: Generate Server (fssp-server) Key and Self-Signed Certificate
+
+First, create a dedicated directory for your certificate generation process.
+
+```bash
+# Create a directory for certificate generation (e.g., 'certs_gen')
+mkdir certs_gen
+cd certs_gen
+
+# Create a subdirectory for server files
+mkdir server
+cd server
+
+# Generate server private key
+openssl genrsa -out fssp-server.key 2048
+
+# Generate self-signed Server Certificate
+# IMPORTANT: CN (Common Name) MUST match the hostname/IP address where the proxy will be accessed.
+# Add Subject Alternative Names (SAN) if accessible via multiple hostnames/IPs.
+openssl req -x509 -new -nodes -key fssp-server.key -sha256 -days 365 \
+    -out fssp-server.crt -subj "/CN=fssp-server" \
+    -reqexts SAN -config <(printf "[req]\ndistinguished_name=req_distinguished_name\n[req_distinguished_name]\n[SAN]\nsubjectAltName=DNS:localhost,IP:127.0.0.1")
+
+echo "Server certificate and key created: fssp-server.key, fssp-server.crt"
+```
+
+##### Step 2: Generate Client (fssp-user) Key and Self-Signed Certificate
+
+```bash
+cd .. # Go back to certs_gen
+mkdir client
+cd client
+
+# Generate client private key
+openssl genrsa -out fssp-user.key 2048
+
+# Generate self-signed Client Certificate
+# CN (Common Name) identifies the client application.
+openssl req -x509 -new -nodes -key fssp-user.key -sha256 -days 365 \
+    -out fssp-user.crt -subj "/CN=fssp-user"
+
+echo "Client certificate and key created: fssp-user.key, fssp-user.crt"
+```
+
+##### Step 3: Create Server's Keystore and Truststore
+
+The server needs a keystore containing its own private key and certificate. Its truststore needs to contain the *client's* public certificate so it can authenticate incoming client connections.
+
+```bash
+cd ../server # Go back to certs_gen/server
+
+# Create a PKCS12 keystore for the server (contains server's key and self-signed certificate)
+# This will be used for quarkus.http.ssl.key-store-file
+SERVER_KEYSTORE_PASS="server_keystore_password" # Change this to a strong password!
+openssl pkcs12 -export -out server.p12 -name fssp-server -inkey fssp-server.key -in fssp-server.crt -passout pass:$SERVER_KEYSTORE_PASS
+
+# Create a PKCS12 truststore for the server (contains the client's public certificate to trust clients)
+# This will be used for quarkus.http.ssl.trust-store-file
+SERVER_TRUSTSTORE_PASS="server_truststore_password" # Change this to a strong password!
+openssl pkcs12 -export -nokeys -in ../client/fssp-user.crt -out server_truststore.p12 -passout pass:$SERVER_TRUSTSTORE_PASS -name fssp-user
+
+echo "Server keystore (server.p12) and truststore (server_truststore.p12) created."
+```
+
+##### Step 4: Create Client's Keystore and Truststore
+
+The client needs a keystore containing its own private key and certificate. Its truststore needs to contain the *server's* public certificate so it can authenticate the proxy server.
+
+```bash
+cd ../client # Go back to certs_gen/client
+
+# Create a PKCS12 keystore for the client (contains client's key and self-signed certificate)
+# This will be used by the client application to present its identity to the proxy
+CLIENT_KEYSTORE_PASS="client_keystore_password" # Change this to a strong password!
+openssl pkcs12 -export -out client.p12 -name fssp-user -inkey fssp-user.key -in fssp-user.crt -passout pass:$CLIENT_KEYSTORE_PASS
+
+# Create a PKCS12 truststore for the client (contains the server's public certificate to trust the server)
+# This will be used by the client application to verify the proxy's certificate
+CLIENT_TRUSTSTORE_PASS="client_truststore_password" # Change this to a strong password!
+openssl pkcs12 -export -nokeys -in ../server/fssp-server.crt -out client_truststore.p12 -passout pass:$CLIENT_TRUSTSTORE_PASS -name fssp-server
+
+echo "Client keystore (client.p12) and truststore (client_truststore.p12) created."
+```
 
 ### Logging Configuration
 
@@ -88,7 +232,7 @@ These settings apply if `secret-store.type` is configured to use AWS SSM.
 | `secret-store.aws-ssm.trust-store-password`     | `SECRET_STORE_AWS_SSM_TRUSTSTORE_PASSWORD`      | Truststore password for FIPS mode.                                               | (none)                 |
 | `secret-store.aws-ssm.trust-store-file-type`    | `SECRET_STORE_AWS_SSM_TRUSTSTORE_FILE_TYPE`     | Truststore file type.                                                            | (none)                 |
 
-### Vault Specific
+#### Vault Specific
 These settings apply if `secret-store.type` is configured to use Vault.
 
 | Property in `application.properties`      | Environment Variable                      | Description                                                                         | Default Value (if any) |
