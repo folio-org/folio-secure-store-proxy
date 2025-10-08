@@ -1,0 +1,46 @@
+
+services:
+  
+  folio-secure-store-proxy:
+    image: folio-secure-store-proxy:latest
+    container_name: fssp-service
+    restart: always
+    ports:
+      - "8443:8443" # Map host port 8443 to container SSL port 8443
+      - "8081:8081" # Optional: Map host port 8081 to container HTTP port 8081 (if using redirect)
+    volumes:
+      # Mount the local 'test.key' directory into the container.
+      # This is where your keystore and truststore files should reside on the host.
+      - ./certs:/etc/fssp/certs:ro
+    environment:
+      # ----------------------------------------------------
+      # SSL KEY STORE CONFIGURATION (Server Identity)
+      # Quarkus uses these properties to load the server's certificate and key.
+      # Note: We use the *absolute path inside the container* /etc/quarkus/certs
+      # ----------------------------------------------------
+      QUARKUS_HTTP_SSL_PORT: 8443
+      SSP_TLS_KEYSTORE_PATH: /etc/fssp/certs/fssp-server-keystore.p12
+      SSP_TLS_KEYSTORE_PASSWORD: supersecret
+      SSP_TLS_KEYSTORE_FILE_TYPE: PKCS12
+      SSP_TLS_KEYSTORE_PROVIDER: SUN
+      
+      # ----------------------------------------------------
+      # SSL TRUST STORE CONFIGURATION (Client Authentication/Trust)
+      # Quarkus uses these properties if it needs to trust client certificates
+      # or verify the chain of an external service it connects to.
+      # ----------------------------------------------------
+      SSP_TLS_TRUSTSTORE_PATH: /etc/fssp/certs/fssp-server-truststore.p12
+      SSP_TLS_TRUSTSTORE_PASSWORD: supersecret
+      SSP_TLS_TRUSTSTORE_FILE_TYPE: PKCS12
+      SSP_TLS_TRUSTSTORE_PROVIDER: SUN
+      
+      # ----------------------------------------------------
+      # Optional: Enforce HTTPS-only
+      # ----------------------------------------------------
+      # Uncomment the next two lines if you want to redirect HTTP (port 8080) traffic to HTTPS (port 8443)
+      QUARKUS_HTTP_INSECURE_REQUESTS: redirect
+      QUARKUS_HTTP_PORT: 8081
+      # ----------------------------------------------------
+      # LOGGING CONFIGURATION
+      # Set the logging level to DEBUG for detailed logs.
+      SSP_LOG_LEVEL: DEBUG
