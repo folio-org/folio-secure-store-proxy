@@ -333,7 +333,7 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
   ```
   To run the container (example):
   ```shell script
-  docker run -e QUARKUS_HTTP_PORT=8081 -p 8081:8081 folio-secure-store-proxy-jvm
+  docker run -e QUARKUS_HTTPS_PORT=8443 -p 8443:8443 folio-secure-store-proxy-jvm
   ```
 
 - **Native Mode (`docker/Dockerfile.native`):**
@@ -344,7 +344,7 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
   ```
   To run the container (example):
   ```shell script
-  docker run -e QUARKUS_HTTP_PORT=8081 -p 8081:8081 folio-secure-store-proxy-native
+  docker run -e QUARKUS_HTTPS_PORT=8443 -p 8443:8443 folio-secure-store-proxy-native
   ```
   A `docker/Dockerfile.native-micro` is also available, which uses a distroless base image for an even smaller native container.
 
@@ -356,7 +356,7 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
   ```
   To run the container (example):
   ```shell script
-  docker run -e QUARKUS_HTTP_PORT=8081 -p 8081:8081 folio-secure-store-proxy-legacy-jar
+  docker run -e QUARKUS_HTTPS_PORT=8443 -p 8443:8443 folio-secure-store-proxy-legacy-jar
   ```
 
 **Note on Docker Configuration:** When running Docker containers, configure the application using environment variables as detailed in the [Configuration](#configuration) section. For instance, to set the secret store type, you might add `-e SECRET_STORE_TYPE=VAULT` to your `docker run` command. The root `Dockerfile` in the project may require review or adjustments to align with standard Quarkus packaging; it is generally recommended to use the specific Dockerfiles within the `docker/` directory for clarity and reliability.
