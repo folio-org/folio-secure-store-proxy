@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>folio-secure-store-proxy</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <description>
     Dedicated service as a proxy for different Secure Store implementations (AWS SSM Parameter Store, Vault etc.)
   </description>
@@ -569,6 +569,6 @@
     <url>https://https://github.com/folio-org/folio-secure-store-proxy</url>
     <connection>scm:git:git://github.com:folio-org/folio-secure-store-proxy.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/folio-secure-store-proxy.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v1.0.0</tag>
   </scm>
 </project>
