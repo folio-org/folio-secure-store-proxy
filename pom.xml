@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>folio-secure-store-proxy</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <description>
     Dedicated service as a proxy for different Secure Store implementations (AWS SSM Parameter Store, Vault etc.)
   </description>
@@ -28,7 +28,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.version>3.28.5</quarkus.platform.version>
-    <applications-poc-tools.version>3.1.0-SNAPSHOT</applications-poc-tools.version>
+    <applications-poc-tools.version>3.0.8</applications-poc-tools.version>
     <bcpkix-fips.version>2.1.10</bcpkix-fips.version>
 
     <lombok.version>1.18.42</lombok.version>
@@ -51,7 +51,7 @@
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-    <folio-java-checkstyle.version>1.2.0-SNAPSHOT</folio-java-checkstyle.version>
+    <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
     <aws-crt.version>0.39.4</aws-crt.version>
 
     <sonar.exclusions>
