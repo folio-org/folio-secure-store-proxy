@@ -51,7 +51,7 @@
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-    <folio-java-checkstyle.version>1.2.0-SNAPSHOT</folio-java-checkstyle.version>
+    <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
     <aws-crt.version>0.39.4</aws-crt.version>
 
     <sonar.exclusions>
