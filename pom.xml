@@ -27,7 +27,7 @@
     <quarkus.package.jar.add-runner-suffix>false</quarkus.package.jar.add-runner-suffix>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.version>3.28.5</quarkus.platform.version>
+    <quarkus.platform.version>3.29.0</quarkus.platform.version>
     <applications-poc-tools.version>3.0.8</applications-poc-tools.version>
     <bcpkix-fips.version>2.1.10</bcpkix-fips.version>
 
