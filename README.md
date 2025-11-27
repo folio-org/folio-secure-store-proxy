@@ -53,8 +53,8 @@ Access roles are determined by the Common Name (CN) value extracted from the cli
 
 | Client Certificate CN | Assigned Roles                              | Description                                                                                                                                                                                                                                                                   |
 |-----------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `fssp-user`           | `secrets-user`                              | Clients with a certificate having `CN=fssp-user` are granted the `secrets-user` role, allowing them to perform basic secret management operations.                                                                                                                            |
-| `fssp-admin`          | `secrets-user`, `secrets-cache-admin`       | Clients with a certificate having `CN=fssp-admin` are granted both `secrets-user` and `secrets-cache-admin` roles. This provides full access to secret management operations as well as cache administration.                                                                 |
+| `user.fssp.com`       | `secrets-user`                              | Clients with a certificate having `CN=user.fssp.com` are granted the `secrets-user` role, allowing them to perform basic secret management operations.                                                                                                                        |
+| `admin.fssp.com`      | `secrets-user`, `secrets-cache-admin`       | Clients with a certificate having `CN=admin.fssp.com` are granted both `secrets-user` and `secrets-cache-admin` roles. This provides full access to secret management operations as well as cache administration.                                                             |
 
 This mechanism leverages the robust authentication provided by mTLS to securely assign roles to clients. For a deeper understanding of how mTLS integrates with RBAC in a Quarkus application, refer to the [Quarkus Security Authentication Mechanisms guide on Mutual TLS](https://quarkus.io/guides/security-authentication-mechanisms#mutual-tls).
 
@@ -160,7 +160,7 @@ openssl genrsa -out fssp-user.key 2048
 # Generate self-signed Client Certificate
 # CN (Common Name) identifies the client application.
 openssl req -x509 -new -nodes -key fssp-user.key -sha256 -days 365 \
-    -out fssp-user.crt -subj "/CN=fssp-user"
+    -out fssp-user.crt -subj "/CN=user.fssp.com"
 
 echo "Client certificate and key created: fssp-user.key, fssp-user.crt"
 ```
