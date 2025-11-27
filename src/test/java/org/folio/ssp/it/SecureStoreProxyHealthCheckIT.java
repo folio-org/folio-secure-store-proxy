@@ -29,7 +29,7 @@ class SecureStoreProxyHealthCheckIT {
   String healthEndpointUrl;
 
   @Test
-  public void healthCheck_positive() {
+  void healthCheck_positive() {
     given()
       .when().get(healthEndpointUrl)
       .then()
