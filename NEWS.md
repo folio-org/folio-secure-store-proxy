@@ -1,4 +1,4 @@
-## Version `v1.0.1` (in progress)
+## Version `v1.0.1` (28.11.2025)
 * Folio secure store proxy deployment issues (FSSP-6)
 ---
 
