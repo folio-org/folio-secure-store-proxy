@@ -29,6 +29,7 @@ This software is distributed under the terms of the Apache License, Version 2.0.
   - [Running in Development Mode](#running-in-development-mode)
   - [Running the Packaged Application](#running-the-packaged-application)
   - [Running with Docker](#running-with-docker)
+- [Management Endpoint](#management-endpoint)
 
 ## Overview
 
@@ -53,8 +54,8 @@ Access roles are determined by the Common Name (CN) value extracted from the cli
 
 | Client Certificate CN | Assigned Roles                              | Description                                                                                                                                                                                                                                                                   |
 |-----------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `fssp-user`           | `secrets-user`                              | Clients with a certificate having `CN=fssp-user` are granted the `secrets-user` role, allowing them to perform basic secret management operations.                                                                                                                            |
-| `fssp-admin`          | `secrets-user`, `secrets-cache-admin`       | Clients with a certificate having `CN=fssp-admin` are granted both `secrets-user` and `secrets-cache-admin` roles. This provides full access to secret management operations as well as cache administration.                                                                 |
+| `user.fssp.com`       | `secrets-user`                              | Clients with a certificate having `CN=user.fssp.com` are granted the `secrets-user` role, allowing them to perform basic secret management operations.                                                                                                                        |
+| `admin.fssp.com`      | `secrets-user`, `secrets-cache-admin`       | Clients with a certificate having `CN=admin.fssp.com` are granted both `secrets-user` and `secrets-cache-admin` roles. This provides full access to secret management operations as well as cache administration.                                                             |
 
 This mechanism leverages the robust authentication provided by mTLS to securely assign roles to clients. For a deeper understanding of how mTLS integrates with RBAC in a Quarkus application, refer to the [Quarkus Security Authentication Mechanisms guide on Mutual TLS](https://quarkus.io/guides/security-authentication-mechanisms#mutual-tls).
 
@@ -160,7 +161,7 @@ openssl genrsa -out fssp-user.key 2048
 # Generate self-signed Client Certificate
 # CN (Common Name) identifies the client application.
 openssl req -x509 -new -nodes -key fssp-user.key -sha256 -days 365 \
-    -out fssp-user.crt -subj "/CN=fssp-user"
+    -out fssp-user.crt -subj "/CN=user.fssp.com"
 
 echo "Client certificate and key created: fssp-user.key, fssp-user.crt"
 ```
@@ -360,3 +361,13 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
   ```
 
 **Note on Docker Configuration:** When running Docker containers, configure the application using environment variables as detailed in the [Configuration](#configuration) section. For instance, to set the secret store type, you might add `-e SECRET_STORE_TYPE=VAULT` to your `docker run` command. The root `Dockerfile` in the project may require review or adjustments to align with standard Quarkus packaging; it is generally recommended to use the specific Dockerfiles within the `docker/` directory for clarity and reliability.
+
+## Management Endpoint
+
+The management endpoint is available over HTTP (without SSL) and is exposed on port 9000 by default. This endpoint provides operational and health information about the service.
+
+- **Protocol:** HTTP (no SSL)
+- **Port:** 9000 (default)
+- **Health Check:** Accessible at [http://localhost:9000/admin/health](http://localhost:9000/admin/health) by default
+
+This endpoint is intended for internal monitoring and management purposes. It should be protected or restricted in production environments as appropriate.

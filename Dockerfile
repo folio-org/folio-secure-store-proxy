@@ -16,5 +16,6 @@ ENV JAVA_APP_JAR="${JAVA_APP_DIR}/quarkus-run.jar"
 
 # Expose this port locally in the container.
 EXPOSE 8443
+EXPOSE 9000
 
-ENTRYPOINT [ "./run-java.sh", "-Dquarkus.https.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager" ]
+ENTRYPOINT [ "./run-java.sh", "-Dquarkus.https.host=0.0.0.0 -Dquarkus.management.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager" ]
