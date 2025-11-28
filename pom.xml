@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>folio-secure-store-proxy</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <description>
     Dedicated service as a proxy for different Secure Store implementations (AWS SSM Parameter Store, Vault etc.)
   </description>
