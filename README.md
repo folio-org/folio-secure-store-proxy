@@ -29,6 +29,7 @@ This software is distributed under the terms of the Apache License, Version 2.0.
   - [Running in Development Mode](#running-in-development-mode)
   - [Running the Packaged Application](#running-the-packaged-application)
   - [Running with Docker](#running-with-docker)
+- [Management Endpoint](#management-endpoint)
 
 ## Overview
 
@@ -360,3 +361,13 @@ This project includes several Dockerfiles in the `docker/` directory, allowing y
   ```
 
 **Note on Docker Configuration:** When running Docker containers, configure the application using environment variables as detailed in the [Configuration](#configuration) section. For instance, to set the secret store type, you might add `-e SECRET_STORE_TYPE=VAULT` to your `docker run` command. The root `Dockerfile` in the project may require review or adjustments to align with standard Quarkus packaging; it is generally recommended to use the specific Dockerfiles within the `docker/` directory for clarity and reliability.
+
+## Management Endpoint
+
+The management endpoint is available over HTTP (without SSL) and is exposed on port 9000 by default. This endpoint provides operational and health information about the service.
+
+- **Protocol:** HTTP (no SSL)
+- **Port:** 9000 (default)
+- **Health Check:** Accessible at [http://localhost:9000/admin/health](http://localhost:9000/admin/health) by default
+
+This endpoint is intended for internal monitoring and management purposes. It should be protected or restricted in production environments as appropriate.
