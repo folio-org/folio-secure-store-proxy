@@ -27,7 +27,7 @@
     <quarkus.package.jar.add-runner-suffix>false</quarkus.package.jar.add-runner-suffix>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.version>3.30.6</quarkus.platform.version>
+    <quarkus.platform.version>3.30.8</quarkus.platform.version>
     <applications-poc-tools.version>3.0.9</applications-poc-tools.version>
     <bcpkix-fips.version>2.1.10</bcpkix-fips.version>
 
@@ -35,7 +35,7 @@
 
     <!-- Test properties -->
     <wiremock.version>3.13.0</wiremock.version>
-    <assertj-core.version>3.27.6</assertj-core.version>
+    <assertj-core.version>3.27.7</assertj-core.version>
     <mockito-core.version>5.8.0</mockito-core.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <testcontainer.version>1.21.4</testcontainer.version>
