@@ -130,7 +130,7 @@ class SecureStoreEntryResourceTest {
   void getEntry_negative_unauthorizedUser() {
     assertThatThrownBy(() -> givenUnauthorizedUserClient().when().get(sseResourceUrl + "/{key}", KEY1))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   @ParameterizedTest(name = "{index} authorized client: {1}")
@@ -243,7 +243,7 @@ class SecureStoreEntryResourceTest {
       givenUnauthorizedUserClient().contentType(ContentType.JSON).body(entry)
         .when().put(sseResourceUrl + "/{key}", KEY1))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   @ParameterizedTest(name = "{index} authorized client: {1}")
@@ -308,7 +308,7 @@ class SecureStoreEntryResourceTest {
   void deleteEntry_negative_unauthorizedUser() {
     assertThatThrownBy(() -> givenUnauthorizedUserClient().when().delete(sseResourceUrl + "/{key}", KEY1))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   private static Stream<Arguments> authorizedClientProvider() {

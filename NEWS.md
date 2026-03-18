@@ -1,3 +1,7 @@
+## Version `v1.1.0` (in progress)
+* Use GitHub Workflows for Maven (FSSP-7)
+---
+
 ## Version `v1.0.1` (28.11.2025)
 * Folio secure store proxy deployment issues (FSSP-6)
 ---

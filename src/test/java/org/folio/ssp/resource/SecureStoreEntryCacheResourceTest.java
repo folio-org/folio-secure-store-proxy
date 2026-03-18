@@ -103,7 +103,7 @@ class SecureStoreEntryCacheResourceTest {
   void getAllEntryKeys_negative_unauthorizedUser() {
     assertThatThrownBy(() -> givenUnauthorizedUserClient().when().get(ssecResourceUrl))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   @Test
@@ -169,7 +169,7 @@ class SecureStoreEntryCacheResourceTest {
   void invalidate_negative_unauthorizedUser() {
     assertThatThrownBy(() -> givenUnauthorizedUserClient().when().delete(ssecResourceUrl + "/{key}", KEY1))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   @Test
@@ -214,7 +214,7 @@ class SecureStoreEntryCacheResourceTest {
   void invalidateAll_negative_unauthorizedUser() {
     assertThatThrownBy(() -> givenUnauthorizedUserClient().when().delete(ssecResourceUrl))
       .isInstanceOf(SSLHandshakeException.class)
-      .hasMessageContaining("Received fatal alert: bad_certificate");
+      .hasMessageMatching(".*Received fatal alert: (bad_certificate|certificate_required).*");
   }
 
   private static Stream<Arguments> forbiddenClientProvider() {
