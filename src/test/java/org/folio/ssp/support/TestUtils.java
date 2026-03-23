@@ -22,7 +22,7 @@ public class TestUtils {
   public static Optional<String> getCached(Cache cache, String key) throws InterruptedException, ExecutionException {
     var future = cache.as(CaffeineCache.class).getIfPresent(key);
 
-    return future != null ? Optional.of((String) future.get()) : Optional.empty();
+    return future != null && !future.isCompletedExceptionally() ? Optional.of((String) future.get()) : Optional.empty();
   }
 
   public static void putInCache(Cache cache, String key, String value) {
