@@ -1,4 +1,4 @@
-## Version `v1.1.0` (in progress)
+## Version `v1.0.2` (17.04.2026)
 * Use GitHub Workflows for Maven (FSSP-7)
 ---
 
