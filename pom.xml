@@ -27,8 +27,8 @@
     <quarkus.package.jar.add-runner-suffix>false</quarkus.package.jar.add-runner-suffix>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.version>3.35.3</quarkus.platform.version>
-    <applications-poc-tools.version>4.0.1</applications-poc-tools.version>
+    <quarkus.platform.version>3.35.4</quarkus.platform.version>
+    <applications-poc-tools.version>4.0.2</applications-poc-tools.version>
     <bcpkix-fips.version>2.1.11</bcpkix-fips.version>
 
     <lombok.version>1.18.46</lombok.version>
@@ -52,7 +52,7 @@
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
     <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
-    <aws-crt.version>0.45.4</aws-crt.version>
+    <aws-crt.version>0.46.0</aws-crt.version>
 
     <sonar.exclusions>
       src/main/java/**/ssp/model/**,
