@@ -1,0 +1,220 @@
+{
+  "_disclaimer": "Default values are calibrated against the memory profile of the FOLIO module sidecar, because folio-secure-store-proxy has no reference bugfest deployment yet. See ADR-0013 (Module configuration management) for the governance model behind this file. Resource values and JVM limits must be adjusted to the target host capacity once real load data is available.",
+  "description": "folio-secure-store-proxy configuration template",
+  "moduleDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the folio-secure-store-proxy container"
+      },
+      {
+        "name": "memory",
+        "value": "1024",
+        "description": "Memory hard limit for the folio-secure-store-proxy container in MiB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "512",
+        "description": "Memory reservation (soft limit) for the folio-secure-store-proxy container in MiB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xmx",
+        "value": "256m",
+        "description": "Maximum Java heap size; the proxy only forwards secret reads and writes to the backing store and by default keeps at most 500 cached entries, so a small heap as for the sidecar is appropriate"
+      },
+      {
+        "name": "xms",
+        "value": "128m",
+        "description": "Initial Java heap size; set to half of xmx to reduce startup GC pressure"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "96m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "UseZGC",
+        "value": "true",
+        "description": "Use ZGC low-pause collector; preferred for a proxy-shaped workload where tail latency matters more than throughput"
+      }
+    ],
+    "deployment": {
+      "isHaSupported": true,
+      "replicasRecommendedCount": 2,
+      "description": "The proxy is stateless apart from an in-memory entry cache, so several replicas can run behind a load balancer; two are recommended because every module that reads secrets through it depends on its availability. The cache is local to each replica and entries live for 24h: a secret written or deleted through one replica is refreshed in that replica only, and cache invalidation through the cache admin endpoints also applies to a single replica. Clients must present a certificate whose CN is mapped to a role in the packaged cert-role-mappings (user.fssp.com or admin.fssp.com)."
+    },
+    "EnvVars": [
+      {
+        "name": "SSP_TLS_KEYSTORE_PATH",
+        "value": null,
+        "description": "Path to the key store holding the server certificate and private key of the mTLS listener. The proxy runs only in mTLS mode and fails to start without it.",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password of the server key store.",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_KEYSTORE_KEY_PASSWORD",
+        "value": null,
+        "description": "Password of the private key entry inside the server key store, when it differs from the key store password.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SSP_TLS_KEYSTORE_FILE_TYPE",
+        "value": "PKCS12",
+        "description": "Type of the server key store file (e.g. PKCS12, JKS).",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_KEYSTORE_PROVIDER",
+        "value": "SUN",
+        "description": "Security provider of the server key store (e.g. SUN).",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Path to the trust store with the certificates of the clients allowed to connect; client certificates are mandatory, so the proxy fails to start without it.",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password of the trust store.",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_TRUSTSTORE_FILE_TYPE",
+        "value": "PKCS12",
+        "description": "Type of the trust store file (e.g. PKCS12, JKS).",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "SSP_TLS_TRUSTSTORE_PROVIDER",
+        "value": "SUN",
+        "description": "Security provider of the trust store (e.g. SUN).",
+        "type": "QUARKUS",
+        "essential": true
+      },
+      {
+        "name": "QUARKUS_HTTP_SSL_PORT",
+        "value": "8443",
+        "description": "HTTPS port of the secrets API. Plain HTTP is disabled.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "QUARKUS_MANAGEMENT_PORT",
+        "value": "9000",
+        "description": "Port of the management interface that serves the health endpoints under /admin/health over plain HTTP; use it for container health checks and keep it off public networks.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "ROOT_LOG_LEVEL",
+        "value": "INFO",
+        "description": "Root log level of the Quarkus logging framework.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SSP_LOG_LEVEL",
+        "value": "INFO",
+        "description": "Log level of the org.folio.ssp package. DEBUG also logs retrieved and stored secret values, so do not use it in production.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "JAVA_OPTS",
+        "value": null,
+        "description": "Additional JVM options for the folio-secure-store-proxy process (heap sizing, GC, agent flags, etc.)",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SECRET_STORE_TYPE",
+        "value": null,
+        "description": "Backing secret store the proxy reads from and writes to: AWS_SSM, VAULT or EPHEMERAL. The code default is EPHEMERAL, an in-memory store that loses all secrets on restart and is meant for development only.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_REGION",
+        "value": null,
+        "description": "AWS region of the SSM client. Required when SECRET_STORE_TYPE=AWS_SSM.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_USE_IAM",
+        "value": "true",
+        "description": "Use the IAM role of the running task for SSM authorization instead of explicit credentials. Applies when SECRET_STORE_TYPE=AWS_SSM.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_FIPS_ENABLED",
+        "value": "false",
+        "description": "When true, the AWS SDK uses the AWS FIPS endpoints. Applies when SECRET_STORE_TYPE=AWS_SSM; set it when the AWS FIPS endpoints must be used.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_ADDRESS",
+        "value": null,
+        "description": "Address of the HashiCorp Vault server. Required when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_TOKEN",
+        "value": null,
+        "description": "Token used to access Vault (sourced from secret store). Required when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_ENABLE_SSL",
+        "value": "false",
+        "description": "Whether to use SSL when connecting to Vault. Applies when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "QUARKUS_CACHE_CAFFEINE__ENTRY_CACHE__INITIAL_CAPACITY",
+        "value": "20",
+        "description": "Initial capacity of the secret entry cache (quarkus.cache.caffeine.\"entry-cache\".initial-capacity).",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "QUARKUS_CACHE_CAFFEINE__ENTRY_CACHE__MAXIMUM_SIZE",
+        "value": "500",
+        "description": "Maximum number of secrets held in the entry cache (quarkus.cache.caffeine.\"entry-cache\".maximum-size). Raise it when more distinct secrets are read than fit in the cache.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "QUARKUS_CACHE_CAFFEINE__ENTRY_CACHE__EXPIRE_AFTER_WRITE",
+        "value": "24h",
+        "description": "How long a secret stays in the entry cache after it was loaded (quarkus.cache.caffeine.\"entry-cache\".expire-after-write). A secret changed directly in the backing store becomes visible only after this time or after the cache entry is invalidated.",
+        "type": "CACHE",
+        "essential": false
+      }
+    ]
+  }
+}
